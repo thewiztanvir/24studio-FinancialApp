@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   // "PRESIDENT" | "REVENUE_TEAM" | "FINANCE_TEAM"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  recordedRevenues  Revenue[] @relation("RecordedRevenues")
+  recordedDonations Donation[] @relation("RecordedDonations")
+  recordedExpenses  Expense[] @relation("RecordedExpenses")
+  approvedExpenses  Expense[] @relation("ApprovedExpenses")
+}
+
+model Account {
+  id             Int      @id @default(autoincrement())
+  name           String
+  type           String   // Bank, bKash, Nagad, Rocket, Cash
+  currentBalance Decimal  @default(0)
+  createdAt      DateTime @default(now())
+
+  revenues  Revenue[]
+  donations Donation[]
+  expenses  Expense[]
+}
+
+model Revenue {
+  id             Int      @id @default(autoincrement())
+  date           DateTime
+  amount         Decimal
+  category       String
+  source         String
+  paymentMethod  String
+  accountId      Int
+  account        Account @relation(fields: [accountId], references: [id])
+  programName    String?
+  description    String?
+  receiptPath    String?
+  status         String   // Pending, Received, Partially Paid
+  recordedById   Int
+  recordedBy     User    @relation("RecordedRevenues", fields: [recordedById], references: [id])
+  createdAt      DateTime @default(now())
+}
+
+model Donor {
+  id               Int      @id @default(autoincrement())
+  name             String
+  email            String?
+  phone            String?
+  address          String?
+  nationalId       String?
+  totalDonated     Decimal  @default(0)
+  lastDonationDate DateTime?
+  createdAt        DateTime @default(now())
+
+  donations Donation[]
+}
+
+model Donation {
+  id                 Int      @id @default(autoincrement())
+  donorId            Int
+  donor              Donor   @relation(fields: [donorId], references: [id])
+  date               DateTime
+  amount             Decimal
+  type               String   // One-time, Recurring, In-kind
+  paymentMethod      String
+  accountId          Int
+  account            Account @relation(fields: [accountId], references: [id])
+  purpose            String?
+  taxReceiptRequired Boolean
+  taxReceiptSent     Boolean @default(false)
+  receiptPath        String?
+  recordedById       Int
+  recordedBy         User    @relation("RecordedDonations", fields: [recordedById], references: [id])
+  createdAt          DateTime @default(now())
+}
+
+model Expense {
+  id            Int      @id @default(autoincrement())
+  date          DateTime
+  amount        Decimal
+  category      String
+  vendor        String?
+  paymentMethod String
+  accountId     Int
+  account       Account @relation(fields: [accountId], references: [id])
+  description   String?
+  receiptPath   String?
+  status        String   // Pending, Approved, Paid
+  recordedById  Int
+  recordedBy    User    @relation("RecordedExpenses", fields: [recordedById], references: [id])
+  approvedById  Int?
+  approvedBy    User?   @relation("ApprovedExpenses", fields: [approvedById], references: [id])
+  createdAt     DateTime @default(now())
+}
+
+model Budget {
+  id              Int      @id @default(autoincrement())
+  year            Int
+  category        String
+  allocatedAmount Decimal
+  spentAmount     Decimal  @default(0)
+  createdAt       DateTime @default(now())
+}
+
+model Settings {
+  id                  Int      @id @default(autoincrement())
+  organizationName    String   @default("24Studio Foundation")
+  organizationAddress String   @default("Dhaka, Bangladesh")
+  organizationEmail   String   @default("info@24studio.org")
+  organizationPhone   String   @default("+880 XXX XXXX")
+  organizationWebsite String   @default("https://24studio.org")
+  currency            String   @default("BDT")
+  currencySymbol      String   @default("৳")
+  dateFormat          String   @default("DD/MM/YYYY")
+  fiscalYearStart     Int      @default(1)
+  fiscalYearEnd       Int      @default(12)
+  revenueCategories   String   @default("Course Fees,Training,Consulting,Grants,Corporate,Projects,Other")
+  expenseCategories   String   @default("Salaries,Rent,Utilities,Supplies,Marketing,Training,Equipment,Transport,Admin,Misc")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}

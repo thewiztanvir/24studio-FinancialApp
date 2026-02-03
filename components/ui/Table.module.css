@@ -1,0 +1,61 @@
+.container {
+    overflow-x: auto;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: var(--transition-base);
+}
+
+.container:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.06) 0%, rgba(118, 75, 162, 0.06) 100%);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table th {
+    padding: 1.125rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.table td {
+    padding: 1.125rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.table tbody tr {
+    transition: var(--transition-fast);
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.04) 0%, rgba(118, 75, 162, 0.04) 100%);
+    transform: scale(1.005);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.empty {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-secondary);
+    background: white;
+    border-radius: var(--radius-md);
+    font-size: 0.925rem;
+}
