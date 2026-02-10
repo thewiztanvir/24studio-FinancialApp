@@ -29,6 +29,7 @@ export async function createRevenue(formData: FormData) {
         programName: formData.get('programName') as string || null,
         description: formData.get('description') as string || null,
         receiptPath: formData.get('receiptPath') as string || null,
+        receiptLink: formData.get('receiptLink') as string || null,
         status: formData.get('status') as string || 'Received',
         recordedById: user.userId,
     }

@@ -124,6 +124,11 @@ export function RevenueForm({ onSuccess }: { onSuccess: () => void }) {
                 {receiptPath && <p style={{ fontSize: '0.875rem', color: 'var(--success-color)' }}>✓ Uploaded</p>}
             </div>
 
+            <div className={styles.field}>
+                <label>Receipt Link (Optional)</label>
+                <input type="url" name="receiptLink" placeholder="https://..." />
+            </div>
+
             <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                 Save Revenue
             </button>

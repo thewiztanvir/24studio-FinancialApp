@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Table } from '@/components/ui/Table'
 import { Modal } from '@/components/ui/Modal'
-import { Plus } from 'lucide-react'
+import { Plus, Check, X } from 'lucide-react'
 import { createDonation, getDonors } from '@/app/actions/donors'
 import { format } from 'date-fns'
 import styles from '../revenue/RevenueForm.module.css'
@@ -54,7 +54,15 @@ export function DonationsList({ initialDonations }: { initialDonations: any[] })
         {
             key: 'taxReceiptRequired',
             label: 'Tax Receipt',
-            render: (val: boolean) => val ? '✓ Yes' : '✗ No'
+            render: (val: boolean) => val ? (
+                <span style={{ color: 'var(--success-color)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <Check size={16} /> Yes
+                </span>
+            ) : (
+                <span style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <X size={16} /> No
+                </span>
+            )
         },
     ]
 
@@ -136,6 +144,11 @@ export function DonationsList({ initialDonations }: { initialDonations: any[] })
                     <div className={styles.field}>
                         <label>Receipt (Optional)</label>
                         <input type="file" onChange={handleFileUpload} accept=".jpg,.jpeg,.png,.pdf" />
+                    </div>
+
+                    <div className={styles.field}>
+                        <label>Receipt Link (Optional)</label>
+                        <input type="url" name="receiptLink" placeholder="https://..." />
                     </div>
 
                     <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>

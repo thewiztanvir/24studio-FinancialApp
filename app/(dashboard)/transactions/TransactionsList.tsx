@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Table } from '@/components/ui/Table'
 import { format } from 'date-fns'
-import { Filter } from 'lucide-react'
+import { Filter, FileText, Link as LinkIcon } from 'lucide-react'
 
 type Transaction = {
     id: string
@@ -16,6 +16,8 @@ type Transaction = {
     transactionId: string | null
     recordedBy: string
     description: string | null
+    receiptPath?: string | null
+    receiptLink?: string | null
 }
 
 export function TransactionsList({ initialTransactions }: { initialTransactions: Transaction[] }) {
@@ -109,6 +111,25 @@ export function TransactionsList({ initialTransactions }: { initialTransactions:
             key: 'transactionId',
             label: 'Transaction ID',
             render: (val: string | null) => val || '—'
+        },
+        {
+            key: 'receipt',
+            label: 'Receipt',
+            render: (_: any, row: Transaction) => (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {row.receiptPath && (
+                        <a href={row.receiptPath} target="_blank" rel="noopener noreferrer" title="View Uploaded Receipt" style={{ color: 'var(--primary-color)' }}>
+                            <FileText size={16} />
+                        </a>
+                    )}
+                    {row.receiptLink && (
+                        <a href={row.receiptLink} target="_blank" rel="noopener noreferrer" title="External Receipt Link" style={{ color: 'var(--primary-color)' }}>
+                            <LinkIcon size={16} />
+                        </a>
+                    )}
+                    {!row.receiptPath && !row.receiptLink && <span style={{ color: 'var(--text-secondary)' }}>—</span>}
+                </div>
+            )
         }
     ]
 

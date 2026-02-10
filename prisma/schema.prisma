@@ -33,6 +33,7 @@ model Revenue {
   programName    String?
   description    String?
   receiptPath    String?
+  receiptLink    String?
   status         String   // Pending, Received, Partially Paid
   recordedById   Int
   recordedBy     User    @relation("RecordedRevenues", fields: [recordedById], references: [id])
@@ -68,6 +69,7 @@ model Donation {
   taxReceiptRequired Boolean
   taxReceiptSent     Boolean @default(false)
   receiptPath        String?
+  receiptLink        String?
   recordedById       Int
   recordedBy         User    @relation("RecordedDonations", fields: [recordedById], references: [id])
   createdAt          DateTime @default(now())
@@ -83,6 +85,7 @@ model Expense {
   transactionId String?
   description   String?
   receiptPath   String?
+  receiptLink   String?
   status        String   // Pending, Approved, Paid
   recordedById  Int
   recordedBy    User    @relation("RecordedExpenses", fields: [recordedById], references: [id])

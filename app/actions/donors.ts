@@ -75,6 +75,7 @@ export async function createDonation(formData: FormData) {
         purpose: formData.get('purpose') as string || null,
         taxReceiptRequired: formData.get('taxReceiptRequired') === 'true',
         receiptPath: formData.get('receiptPath') as string || null,
+        receiptLink: formData.get('receiptLink') as string || null,
         recordedById: user.userId,
     }
 

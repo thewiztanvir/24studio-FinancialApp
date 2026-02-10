@@ -1,6 +1,6 @@
 import { getReportData } from '@/app/actions/reports'
 import { ReportsFilter, ExportButton } from './ReportsView'
-import { Filter, Calendar, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
+import { Filter, Calendar, TrendingUp, TrendingDown, DollarSign, FileText, Link as LinkIcon } from 'lucide-react'
 
 export default async function ReportsPage(props: { searchParams: Promise<{ year?: string, month?: string, type?: string }> }) {
     const searchParams = await props.searchParams
@@ -107,6 +107,7 @@ export default async function ReportsPage(props: { searchParams: Promise<{ year?
                                         <th style={{ padding: '0.75rem 0.5rem', color: 'var(--text-secondary)' }}>Date</th>
                                         <th style={{ padding: '0.75rem 0.5rem', color: 'var(--text-secondary)' }}>Type</th>
                                         <th style={{ padding: '0.75rem 0.5rem', color: 'var(--text-secondary)' }}>Description</th>
+                                        <th style={{ padding: '0.75rem 0.5rem', color: 'var(--text-secondary)' }}>Receipt</th>
                                         <th style={{ padding: '0.75rem 0.5rem', color: 'var(--text-secondary)', textAlign: 'right' }}>Amount</th>
                                     </tr>
                                 </thead>
@@ -130,6 +131,51 @@ export default async function ReportsPage(props: { searchParams: Promise<{ year?
                                             <td style={{ padding: '0.75rem 0.5rem' }}>
                                                 <div style={{ fontWeight: '500' }}>{t.category}</div>
                                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.source}</div>
+                                            </td>
+                                            <td style={{ padding: '0.75rem 0.5rem' }}>
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    {t.receiptPath && (
+                                                        <a
+                                                            href={t.receiptPath}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            title="View Uploaded Receipt"
+                                                            style={{
+                                                                color: 'var(--primary-color)',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                borderRadius: '4px',
+                                                                background: 'rgba(59, 130, 246, 0.1)'
+                                                            }}
+                                                        >
+                                                            <FileText size={14} />
+                                                        </a>
+                                                    )}
+                                                    {t.receiptLink && (
+                                                        <a
+                                                            href={t.receiptLink}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            title="External Receipt Link"
+                                                            style={{
+                                                                color: 'var(--primary-color)',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                borderRadius: '4px',
+                                                                background: 'rgba(59, 130, 246, 0.1)'
+                                                            }}
+                                                        >
+                                                            <LinkIcon size={14} />
+                                                        </a>
+                                                    )}
+                                                    {!t.receiptPath && !t.receiptLink && <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>—</span>}
+                                                </div>
                                             </td>
                                             <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right', fontWeight: '600' }}>
                                                 ৳ {t.amount.toLocaleString()}

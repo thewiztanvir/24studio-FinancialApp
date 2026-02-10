@@ -28,6 +28,7 @@ export async function createExpense(formData: FormData) {
         transactionId: formData.get('transactionId') as string || null,
         description: formData.get('description') as string || null,
         receiptPath: formData.get('receiptPath') as string || null,
+        receiptLink: formData.get('receiptLink') as string || null,
         status: 'Pending',
         recordedById: user.userId,
     }

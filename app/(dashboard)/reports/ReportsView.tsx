@@ -127,17 +127,19 @@ export function ExportButton({ data }: { data: any[] }) {
     const handleDownload = () => {
         if (!data || data.length === 0) return
 
-        const headers = ['ID', 'Date', 'Type', 'Category', 'Source/Vendor', 'Amount', 'Recorded By']
+        const headers = ['ID', 'Date', 'Type', 'Category', 'Source/Vendor', 'Amount', 'Recorded By', 'Receipt Link', 'Receipt File']
         const csvContent = [
             headers.join(','),
             ...data.map(row => [
                 row.id,
                 new Date(row.date).toLocaleDateString(),
                 row.type,
-                `"${row.category}"`, // Quote to handle commas
+                `"${row.category}"`,
                 `"${row.source}"`,
                 row.amount,
-                row.recordedBy
+                row.recordedBy,
+                row.receiptLink || '',
+                row.receiptPath ? `${window.location.origin}${row.receiptPath}` : ''
             ].join(','))
         ].join('\n')
 

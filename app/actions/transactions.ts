@@ -34,7 +34,9 @@ export async function getAllTransactions() {
                 paymentMethod: r.paymentMethod,
                 transactionId: r.transactionId,
                 recordedBy: r.recordedBy.name,
-                description: r.description
+                description: r.description,
+                receiptPath: r.receiptPath,
+                receiptLink: r.receiptLink
             })),
             ...expenses.map(e => ({
                 id: `expense-${e.id}`,
@@ -46,7 +48,9 @@ export async function getAllTransactions() {
                 paymentMethod: e.paymentMethod,
                 transactionId: e.transactionId,
                 recordedBy: e.recordedBy.name,
-                description: e.description
+                description: e.description,
+                receiptPath: e.receiptPath,
+                receiptLink: e.receiptLink
             })),
             ...donations.map(d => ({
                 id: `donation-${d.id}`,
@@ -58,7 +62,9 @@ export async function getAllTransactions() {
                 paymentMethod: d.paymentMethod,
                 transactionId: d.transactionId,
                 recordedBy: d.recordedBy.name,
-                description: d.purpose
+                description: d.purpose,
+                receiptPath: d.receiptPath,
+                receiptLink: d.receiptLink
             }))
         ]
 

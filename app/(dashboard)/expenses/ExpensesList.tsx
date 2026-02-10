@@ -189,6 +189,11 @@ export function ExpensesList({ initialExpenses }: { initialExpenses: any[] }) {
                         <input type="file" onChange={handleFileUpload} accept=".jpg,.jpeg,.png,.pdf" />
                     </div>
 
+                    <div className={styles.field}>
+                        <label>Receipt Link (Optional)</label>
+                        <input type="url" name="receiptLink" placeholder="https://..." />
+                    </div>
+
                     <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                         Save Expense (Pending Approval)
                     </button>

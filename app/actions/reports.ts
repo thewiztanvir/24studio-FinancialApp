@@ -61,7 +61,9 @@ export async function getReportData(filter: ReportFilter) {
                 category: r.category,
                 source: r.source,
                 amount: Number(r.amount),
-                recordedBy: r.recordedBy.name
+                recordedBy: r.recordedBy.name,
+                receiptPath: r.receiptPath,
+                receiptLink: r.receiptLink
             })),
             ...expenses.map(e => ({
                 id: `EXP-${e.id}`,
@@ -70,7 +72,9 @@ export async function getReportData(filter: ReportFilter) {
                 category: e.category,
                 source: e.vendor || '-',
                 amount: Number(e.amount),
-                recordedBy: e.recordedBy.name
+                recordedBy: e.recordedBy.name,
+                receiptPath: e.receiptPath,
+                receiptLink: e.receiptLink
             })),
             ...donations.map(d => ({
                 id: `DON-${d.id}`,
@@ -79,7 +83,9 @@ export async function getReportData(filter: ReportFilter) {
                 category: d.type,
                 source: d.donor.name,
                 amount: Number(d.amount),
-                recordedBy: d.recordedBy.name
+                recordedBy: d.recordedBy.name,
+                receiptPath: d.receiptPath,
+                receiptLink: d.receiptLink
             }))
         ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
