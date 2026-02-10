@@ -25,7 +25,7 @@ export async function createRevenue(formData: FormData) {
         category: formData.get('category') as string,
         source: formData.get('source') as string,
         paymentMethod: formData.get('paymentMethod') as string,
-        accountId: parseInt(formData.get('accountId') as string),
+        transactionId: formData.get('transactionId') as string || null,
         programName: formData.get('programName') as string || null,
         description: formData.get('description') as string || null,
         receiptPath: formData.get('receiptPath') as string || null,
@@ -34,17 +34,11 @@ export async function createRevenue(formData: FormData) {
     }
 
     try {
-        // Create revenue
         const revenue = await prisma.revenue.create({ data })
-
-        // Update account balance
-        await prisma.account.update({
-            where: { id: data.accountId },
-            data: { currentBalance: { increment: data.amount } }
-        })
 
         revalidatePath('/revenue')
         revalidatePath('/dashboard')
+        revalidatePath('/transactions')
         return { success: true, revenue }
     } catch (error) {
         console.error('Create revenue error:', error)
@@ -56,13 +50,16 @@ export async function getRevenues() {
     try {
         const revenues = await prisma.revenue.findMany({
             include: {
-                account: true,
                 recordedBy: { select: { name: true } }
             },
             orderBy: { date: 'desc' },
             take: 100
         })
-        return revenues
+
+        return revenues.map(r => ({
+            ...r,
+            amount: Number(r.amount)
+        }))
     } catch (error) {
         console.error('Get revenues error:', error)
         return []
@@ -85,16 +82,11 @@ export async function deleteRevenue(id: number) {
             return { error: 'Unauthorized' }
         }
 
-        // Rollback account balance
-        await prisma.account.update({
-            where: { id: revenue.accountId },
-            data: { currentBalance: { decrement: revenue.amount } }
-        })
-
         await prisma.revenue.delete({ where: { id } })
 
         revalidatePath('/revenue')
         revalidatePath('/dashboard')
+        revalidatePath('/transactions')
         return { success: true }
     } catch (error) {
         console.error('Delete revenue error:', error)

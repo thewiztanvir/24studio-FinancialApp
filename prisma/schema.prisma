@@ -22,18 +22,6 @@ model User {
   approvedExpenses  Expense[] @relation("ApprovedExpenses")
 }
 
-model Account {
-  id             Int      @id @default(autoincrement())
-  name           String
-  type           String   // Bank, bKash, Nagad, Rocket, Cash
-  currentBalance Decimal  @default(0)
-  createdAt      DateTime @default(now())
-
-  revenues  Revenue[]
-  donations Donation[]
-  expenses  Expense[]
-}
-
 model Revenue {
   id             Int      @id @default(autoincrement())
   date           DateTime
@@ -41,8 +29,7 @@ model Revenue {
   category       String
   source         String
   paymentMethod  String
-  accountId      Int
-  account        Account @relation(fields: [accountId], references: [id])
+  transactionId  String?
   programName    String?
   description    String?
   receiptPath    String?
@@ -53,15 +40,17 @@ model Revenue {
 }
 
 model Donor {
-  id               Int      @id @default(autoincrement())
-  name             String
-  email            String?
-  phone            String?
-  address          String?
-  nationalId       String?
-  totalDonated     Decimal  @default(0)
-  lastDonationDate DateTime?
-  createdAt        DateTime @default(now())
+  id                        Int      @id @default(autoincrement())
+  name                      String
+  email                     String?
+  phone                     String?
+  address                   String?
+  nationalId                String?
+  status                    String   @default("External")  // Internal or External
+  yearlyContributionRequired Decimal?
+  totalDonated              Decimal  @default(0)
+  lastDonationDate          DateTime?
+  createdAt                 DateTime @default(now())
 
   donations Donation[]
 }
@@ -74,8 +63,7 @@ model Donation {
   amount             Decimal
   type               String   // One-time, Recurring, In-kind
   paymentMethod      String
-  accountId          Int
-  account            Account @relation(fields: [accountId], references: [id])
+  transactionId      String?
   purpose            String?
   taxReceiptRequired Boolean
   taxReceiptSent     Boolean @default(false)
@@ -92,8 +80,7 @@ model Expense {
   category      String
   vendor        String?
   paymentMethod String
-  accountId     Int
-  account       Account @relation(fields: [accountId], references: [id])
+  transactionId String?
   description   String?
   receiptPath   String?
   status        String   // Pending, Approved, Paid

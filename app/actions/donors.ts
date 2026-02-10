@@ -25,6 +25,8 @@ export async function createDonor(formData: FormData) {
         phone: formData.get('phone') as string || null,
         address: formData.get('address') as string || null,
         nationalId: formData.get('nationalId') as string || null,
+        status: formData.get('status') as string || 'External',
+        yearlyContributionRequired: formData.get('yearlyContributionRequired') ? parseFloat(formData.get('yearlyContributionRequired') as string) : null,
     }
 
     try {
@@ -39,9 +41,15 @@ export async function createDonor(formData: FormData) {
 
 export async function getDonors() {
     try {
-        return await prisma.donor.findMany({
+        const donors = await prisma.donor.findMany({
             orderBy: { lastDonationDate: 'desc' },
         })
+
+        return donors.map(d => ({
+            ...d,
+            yearlyContributionRequired: d.yearlyContributionRequired ? Number(d.yearlyContributionRequired) : null,
+            totalDonated: Number(d.totalDonated)
+        }))
     } catch (error) {
         console.error('Get donors error:', error)
         return []
@@ -63,7 +71,7 @@ export async function createDonation(formData: FormData) {
         amount: parseFloat(formData.get('amount') as string),
         type: formData.get('type') as string,
         paymentMethod: formData.get('paymentMethod') as string,
-        accountId: parseInt(formData.get('accountId') as string),
+        transactionId: formData.get('transactionId') as string || null,
         purpose: formData.get('purpose') as string || null,
         taxReceiptRequired: formData.get('taxReceiptRequired') === 'true',
         receiptPath: formData.get('receiptPath') as string || null,
@@ -72,12 +80,6 @@ export async function createDonation(formData: FormData) {
 
     try {
         const donation = await prisma.donation.create({ data })
-
-        // Update account balance
-        await prisma.account.update({
-            where: { id: data.accountId },
-            data: { currentBalance: { increment: data.amount } }
-        })
 
         // Update donor stats
         await prisma.donor.update({
@@ -91,6 +93,7 @@ export async function createDonation(formData: FormData) {
         revalidatePath('/donations')
         revalidatePath('/donors')
         revalidatePath('/dashboard')
+        revalidatePath('/transactions')
         return { success: true, donation }
     } catch (error) {
         console.error('Create donation error:', error)
@@ -100,17 +103,78 @@ export async function createDonation(formData: FormData) {
 
 export async function getDonations() {
     try {
-        return await prisma.donation.findMany({
+        const donations = await prisma.donation.findMany({
             include: {
                 donor: true,
-                account: true,
                 recordedBy: { select: { name: true } }
             },
             orderBy: { date: 'desc' },
             take: 100
         })
+
+        return donations.map(d => ({
+            ...d,
+            amount: Number(d.amount),
+            donor: {
+                ...d.donor,
+                yearlyContributionRequired: d.donor.yearlyContributionRequired ? Number(d.donor.yearlyContributionRequired) : null,
+                totalDonated: Number(d.donor.totalDonated)
+            }
+        }))
     } catch (error) {
         console.error('Get donations error:', error)
         return []
+    }
+}
+
+export async function getDonorProfile(id: number) {
+    try {
+        const donor = await prisma.donor.findUnique({
+            where: { id },
+            include: {
+                donations: {
+                    orderBy: { date: 'desc' },
+                    include: {
+                        recordedBy: { select: { name: true } }
+                    }
+                }
+            }
+        })
+
+        if (!donor) return null
+
+        const currentYear = new Date().getFullYear()
+        const currentMonth = new Date().getMonth()
+
+        const donations = donor.donations.map(d => ({
+            ...d,
+            amount: Number(d.amount)
+        }))
+
+        const yearlyDonated = donations
+            .filter(d => d.date.getFullYear() === currentYear)
+            .reduce((sum, d) => sum + d.amount, 0)
+
+        const monthlyDonated = donations
+            .filter(d => d.date.getFullYear() === currentYear && d.date.getMonth() === currentMonth)
+            .reduce((sum, d) => sum + d.amount, 0)
+
+        return {
+            donor: {
+                ...donor,
+                yearlyContributionRequired: donor.yearlyContributionRequired ? Number(donor.yearlyContributionRequired) : null,
+                totalDonated: Number(donor.totalDonated)
+            },
+            stats: {
+                yearlyDonated,
+                monthlyDonated,
+                lifetimeDonated: Number(donor.totalDonated),
+                lastDonationDate: donor.lastDonationDate
+            },
+            history: donations
+        }
+    } catch (error) {
+        console.error('Get donor profile error:', error)
+        return null
     }
 }

@@ -8,12 +8,18 @@ export default async function BudgetPage() {
         orderBy: { category: 'asc' }
     })
 
+    const serializedBudgets = budgets.map(b => ({
+        ...b,
+        allocatedAmount: Number(b.allocatedAmount),
+        spentAmount: Number(b.spentAmount),
+    }))
+
     return (
         <div>
             <h1 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '0.5rem' }}>Budget Management</h1>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Manage yearly budgets by category ({currentYear})</p>
 
-            <BudgetForm currentYear={currentYear} existingBudgets={budgets} />
+            <BudgetForm currentYear={currentYear} existingBudgets={serializedBudgets} />
 
             <div style={{ marginTop: '3rem' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>Current Budgets</h2>

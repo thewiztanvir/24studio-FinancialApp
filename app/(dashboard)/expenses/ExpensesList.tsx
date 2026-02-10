@@ -11,12 +11,7 @@ import styles from '../revenue/RevenueForm.module.css'
 export function ExpensesList({ initialExpenses }: { initialExpenses: any[] }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [expenses, setExpenses] = useState(initialExpenses)
-    const [accounts, setAccounts] = useState<any[]>([])
     const [receiptPath, setReceiptPath] = useState('')
-
-    useEffect(() => {
-        fetch('/api/accounts').then(r => r.json()).then(setAccounts)
-    }, [])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -179,13 +174,8 @@ export function ExpensesList({ initialExpenses }: { initialExpenses: any[] }) {
                             </select>
                         </div>
                         <div className={styles.field}>
-                            <label>Account *</label>
-                            <select name="accountId" required>
-                                <option value="">Select Account</option>
-                                {accounts.map(acc => (
-                                    <option key={acc.id} value={acc.id}>{acc.name}</option>
-                                ))}
-                            </select>
+                            <label>Transaction ID (Optional)</label>
+                            <input type="text" name="transactionId" placeholder="e.g., TXN123456" />
                         </div>
                     </div>
 

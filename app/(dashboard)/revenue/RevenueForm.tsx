@@ -6,14 +6,8 @@ import { prisma } from '@/lib/prisma'
 import styles from './RevenueForm.module.css'
 
 export function RevenueForm({ onSuccess }: { onSuccess: () => void }) {
-    const [accounts, setAccounts] = useState<any[]>([])
     const [uploading, setUploading] = useState(false)
     const [receiptPath, setReceiptPath] = useState('')
-
-    useEffect(() => {
-        // Fetch accounts (in real app, pass as props or use API route)
-        fetch('/api/accounts').then(r => r.json()).then(setAccounts)
-    }, [])
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -108,13 +102,8 @@ export function RevenueForm({ onSuccess }: { onSuccess: () => void }) {
                     </select>
                 </div>
                 <div className={styles.field}>
-                    <label>Account *</label>
-                    <select name="accountId" required>
-                        <option value="">Select Account</option>
-                        {accounts.map(acc => (
-                            <option key={acc.id} value={acc.id}>{acc.name}</option>
-                        ))}
-                    </select>
+                    <label>Transaction ID (Optional)</label>
+                    <input type="text" name="transactionId" placeholder="e.g., TXN123456" />
                 </div>
             </div>
 

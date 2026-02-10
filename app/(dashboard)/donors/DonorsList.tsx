@@ -7,6 +7,8 @@ import { Plus } from 'lucide-react'
 import { createDonor } from '@/app/actions/donors'
 import styles from '../revenue/RevenueForm.module.css'
 
+import Link from 'next/link'
+
 export function DonorsList({ initialDonors }: { initialDonors: any[] }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [donors, setDonors] = useState(initialDonors)
@@ -24,7 +26,31 @@ export function DonorsList({ initialDonors }: { initialDonors: any[] }) {
     }
 
     const columns = [
-        { key: 'name', label: 'Name' },
+        {
+            key: 'name',
+            label: 'Name',
+            render: (val: string, row: any) => (
+                <Link href={`/donors/${row.id}`} style={{ fontWeight: '600', color: 'var(--primary-color)', textDecoration: 'none' }}>
+                    {val}
+                </Link>
+            )
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            render: (val: string) => (
+                <span style={{
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    background: val === 'Internal' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(107, 114, 128, 0.1)',
+                    color: val === 'Internal' ? 'rgb(59, 130, 246)' : 'rgb(107, 114, 128)'
+                }}>
+                    {val}
+                </span>
+            )
+        },
         { key: 'email', label: 'Email' },
         { key: 'phone', label: 'Phone' },
         {
@@ -72,6 +98,27 @@ export function DonorsList({ initialDonors }: { initialDonors: any[] }) {
                     <div className={styles.field}>
                         <label>National ID</label>
                         <input type="text" name="nationalId" placeholder="Optional" />
+                    </div>
+                    <div className={styles.row}>
+                        <div className={styles.field}>
+                            <label>Donor Status *</label>
+                            <select name="status" required defaultValue="External" onChange={(e) => {
+                                const form = e.target.closest('form');
+                                const yearlyField = form?.querySelector('[name="yearlyContributionRequired"]') as HTMLInputElement;
+                                if (yearlyField) {
+                                    yearlyField.style.display = e.target.value === 'Internal' ? 'block' : 'none';
+                                    const fieldWrapper = yearlyField.closest(`.${styles.field}`) as HTMLElement;
+                                    if (fieldWrapper) fieldWrapper.style.display = e.target.value === 'Internal' ? 'block' : 'none';
+                                }
+                            }}>
+                                <option value="External">External Donor</option>
+                                <option value="Internal">Internal Donor</option>
+                            </select>
+                        </div>
+                        <div className={styles.field} style={{ display: 'none' }}>
+                            <label>Yearly Contribution Required (৳)</label>
+                            <input type="number" name="yearlyContributionRequired" step="0.01" placeholder="e.g., 50000" />
+                        </div>
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                         Save Donor

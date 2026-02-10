@@ -33,7 +33,6 @@ export function RevenueList({ initialRevenues }: { initialRevenues: any[] }) {
             render: (val: any) => <strong style={{ color: 'var(--success-color)' }}>৳ {val.toLocaleString()}</strong>
         },
         { key: 'paymentMethod', label: 'Payment Method' },
-        { key: 'account', label: 'Account', render: (val: any) => val?.name },
         { key: 'status', label: 'Status' },
         {
             key: 'id',

@@ -25,7 +25,7 @@ export async function createExpense(formData: FormData) {
         category: formData.get('category') as string,
         vendor: formData.get('vendor') as string || null,
         paymentMethod: formData.get('paymentMethod') as string,
-        accountId: parseInt(formData.get('accountId') as string),
+        transactionId: formData.get('transactionId') as string || null,
         description: formData.get('description') as string || null,
         receiptPath: formData.get('receiptPath') as string || null,
         status: 'Pending',
@@ -44,15 +44,19 @@ export async function createExpense(formData: FormData) {
 
 export async function getExpenses() {
     try {
-        return await prisma.expense.findMany({
+        const expenses = await prisma.expense.findMany({
             include: {
-                account: true,
                 recordedBy: { select: { name: true } },
                 approvedBy: { select: { name: true } }
             },
             orderBy: { date: 'desc' },
             take: 100
         })
+
+        return expenses.map(e => ({
+            ...e,
+            amount: Number(e.amount)
+        }))
     } catch (error) {
         console.error('Get expenses error:', error)
         return []
@@ -83,12 +87,6 @@ export async function approveExpense(id: number) {
             }
         })
 
-        // Deduct from account balance
-        await prisma.account.update({
-            where: { id: expense.accountId },
-            data: { currentBalance: { decrement: expense.amount } }
-        })
-
         // Update budget spent amount
         const currentYear = new Date().getFullYear()
         await prisma.budget.updateMany({
@@ -103,6 +101,7 @@ export async function approveExpense(id: number) {
 
         revalidatePath('/expenses')
         revalidatePath('/dashboard')
+        revalidatePath('/transactions')
         return { success: true }
     } catch (error) {
         console.error('Approve expense error:', error)
@@ -120,6 +119,7 @@ export async function rejectExpense(id: number) {
     try {
         await prisma.expense.delete({ where: { id } })
         revalidatePath('/expenses')
+        revalidatePath('/transactions')
         return { success: true }
     } catch (error) {
         console.error('Reject expense error:', error)

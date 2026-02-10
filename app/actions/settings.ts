@@ -72,7 +72,7 @@ export async function updateSettings(formData: FormData) {
     }
 }
 
-export async function updateCategories(type: 'revenue' | 'expense', categories: string[]) {
+export async function updateCategories(revenueCategories: string[], expenseCategories: string[]) {
     const user = await getUserFromCookie()
     if (user.role !== 'PRESIDENT') {
         return { error: 'Unauthorized: Only President can update categories' }
@@ -80,11 +80,13 @@ export async function updateCategories(type: 'revenue' | 'expense', categories: 
 
     try {
         const settings = await prisma.settings.findFirst()
-        const categoriesString = categories.join(',')
+        const revenueCategoriesString = revenueCategories.join(',')
+        const expenseCategoriesString = expenseCategories.join(',')
 
-        const data = type === 'revenue'
-            ? { revenueCategories: categoriesString }
-            : { expenseCategories: categoriesString }
+        const data = {
+            revenueCategories: revenueCategoriesString,
+            expenseCategories: expenseCategoriesString
+        }
 
         if (settings) {
             await prisma.settings.update({
@@ -114,11 +116,10 @@ export async function resetAllTransactions() {
         await prisma.donation.deleteMany({})
         await prisma.revenue.deleteMany({})
         await prisma.donor.deleteMany({})
-        await prisma.account.updateMany({ data: { currentBalance: 0 } })
 
         revalidatePath('/dashboard')
-        revalidatePath('/accounts')
-        return { success: true, message: 'All transactions cleared and balances reset to ৳ 0' }
+        revalidatePath('/transactions')
+        return { success: true, message: 'All transactions cleared successfully' }
     } catch (error) {
         console.error('Reset error:', error)
         return { error: 'Failed to reset database' }
@@ -133,9 +134,7 @@ export async function getDatabaseStats() {
 
     try {
         const stats = {
-            users: await prisma.user.count(),
-            accounts: await prisma.account.count(),
-            revenue: await prisma.revenue.count(),
+            revenues: await prisma.revenue.count(),
             donations: await prisma.donation.count(),
             donors: await prisma.donor.count(),
             expenses: await prisma.expense.count(),
@@ -145,68 +144,5 @@ export async function getDatabaseStats() {
     } catch (error) {
         console.error('Stats error:', error)
         return null
-    }
-}
-
-// Account Management
-export async function createAccount(formData: FormData) {
-    const user = await getUserFromCookie()
-    if (user.role !== 'PRESIDENT') {
-        return { error: 'Unauthorized: Only President can create accounts' }
-    }
-
-    const data = {
-        name: formData.get('name') as string,
-        type: formData.get('type') as string,
-        currentBalance: parseFloat(formData.get('currentBalance') as string) || 0,
-    }
-
-    try {
-        const account = await prisma.account.create({ data })
-        revalidatePath('/accounts')
-        revalidatePath('/settings')
-        return { success: true, account }
-    } catch (error) {
-        console.error('Create account error:', error)
-        return { error: 'Failed to create account' }
-    }
-}
-
-export async function deleteAccount(id: number) {
-    const user = await getUserFromCookie()
-    if (user.role !== 'PRESIDENT') {
-        return { error: 'Unauthorized: Only President can delete accounts' }
-    }
-
-    try {
-        const revenueCount = await prisma.revenue.count({ where: { accountId: id } })
-        const donationCount = await prisma.donation.count({ where: { accountId: id } })
-        const expenseCount = await prisma.expense.count({ where: { accountId: id } })
-
-        if (revenueCount > 0 || donationCount > 0 || expenseCount > 0) {
-            return { error: 'Cannot delete account with existing transactions' }
-        }
-
-        await prisma.account.delete({ where: { id } })
-        revalidatePath('/accounts')
-        revalidatePath('/settings')
-        return { success: true }
-    } catch (error) {
-        console.error('Delete account error:', error)
-        return { error: 'Failed to delete account' }
-    }
-}
-
-export async function getAllAccounts() {
-    const user = await getUserFromCookie()
-    if (user.role !== 'PRESIDENT') {
-        return []
-    }
-
-    try {
-        return await prisma.account.findMany({ orderBy: { name: 'asc' } })
-    } catch (error) {
-        console.error('Get accounts error:', error)
-        return []
     }
 }

@@ -12,12 +12,10 @@ export function DonationsList({ initialDonations }: { initialDonations: any[] })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [donations, setDonations] = useState(initialDonations)
     const [donors, setDonors] = useState<any[]>([])
-    const [accounts, setAccounts] = useState<any[]>([])
     const [receiptPath, setReceiptPath] = useState('')
 
     useEffect(() => {
         getDonors().then(setDonors)
-        fetch('/api/accounts').then(r => r.json()).then(setAccounts)
     }, [])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,13 +116,8 @@ export function DonationsList({ initialDonations }: { initialDonations: any[] })
                             </select>
                         </div>
                         <div className={styles.field}>
-                            <label>Account *</label>
-                            <select name="accountId" required>
-                                <option value="">Select Account</option>
-                                {accounts.map(acc => (
-                                    <option key={acc.id} value={acc.id}>{acc.name}</option>
-                                ))}
-                            </select>
+                            <label>Transaction ID (Optional)</label>
+                            <input type="text" name="transactionId" placeholder="e.g., TXN123456" />
                         </div>
                     </div>
 
